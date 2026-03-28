@@ -18,16 +18,15 @@ import { getDatabase, ref, push, set, get, onValue, update, remove, serverTimest
 // FIREBASE CONFIGURATION
 
 const firebaseConfig = {
-            apiKey: "AIzaSyCUFH9o4RC2WaY-VMReonYXgrdSX4zTUJg",
-            authDomain: "doubt-drop-32105.firebaseapp.com",
-            databaseURL: "https://doubt-drop-32105-default-rtdb.firebaseio.com",
-            projectId: "doubt-drop-32105",
-            storageBucket: "doubt-drop-32105.firebasestorage.app",
-            messagingSenderId: "768619536945",
-            appId: "1:768619536945:web:b683f04c7cf9786840ab10",
-            measurementId: "G-ESRNM4LWTE"
-        };
-
+  apiKey: "PASTE_YOUR_API_KEY",
+  authDomain: "PASTE_YOUR_AUTH_DOMAIN",
+  databaseURL: "PASTE_YOUR_DATABASE_URL",
+  projectId: "PASTE_YOUR_PROJECT_ID",
+  storageBucket: "PASTE_YOUR_STORAGE_BUCKET",
+  messagingSenderId: "PASTE_YOUR_MESSAGING_SENDER_ID",
+  appId: "PASTE_YOUR_APP_ID"
+};
+  
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getDatabase(app);
