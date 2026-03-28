@@ -14,10 +14,8 @@ import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, si
 import { getDatabase, ref, push, set, get, onValue, update, remove, serverTimestamp }
   from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 
-// ─── PASTE YOUR FIREBASE CONFIG HERE ───────────────────────────────────────
-// Go to https://console.firebase.google.com → New project → Add web app
-// Copy your firebaseConfig object and replace the one below.
-// Also enable: Authentication > Email/Password AND Realtime Database (test mode)
+// FIREBASE CONFIGURATION
+
 const firebaseConfig = {
             apiKey: "AIzaSyCUFH9o4RC2WaY-VMReonYXgrdSX4zTUJg",
             authDomain: "doubt-drop-32105.firebaseapp.com",
@@ -28,7 +26,6 @@ const firebaseConfig = {
             appId: "1:768619536945:web:b683f04c7cf9786840ab10",
             measurementId: "G-ESRNM4LWTE"
         };
-// ────────────────────────────────────────────────────────────────────────────
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
@@ -648,6 +645,75 @@ body {
   margin: 14px 0 6px;
 }
 
+
+/* ── LIGHT THEME ── */
+body.light {
+  --bg: #f4f2ed;
+  --surface: #ffffff;
+  --surface2: #ede9e0;
+  --border: #d8d3c8;
+  --border2: #bbb5a8;
+  --text: #1a1a1a;
+  --muted: #7a7670;
+  --accent: #d4a000;
+  --accent2: #1a5fd4;
+  --red: #d93025;
+  --green: #1e8a4a;
+}
+body.light .landing {
+  background: radial-gradient(ellipse 60% 40% at 50% -10%, rgba(212,160,0,0.1) 0%, transparent 70%), var(--bg);
+}
+body.light .auth-wrap {
+  background: radial-gradient(ellipse 50% 50% at 50% 0%, rgba(26,95,212,0.06) 0%, transparent 60%), var(--bg);
+}
+body.light .modal-overlay { background: rgba(0,0,0,0.4); }
+body.light .toast { box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+
+/* ── THEME TOGGLE BUTTON ── */
+.theme-toggle {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 6px 10px;
+  cursor: pointer; font-size: 15px; line-height: 1;
+  transition: all 0.15s; color: var(--text);
+}
+.theme-toggle:hover { border-color: var(--border2); }
+
+/* ── PDF PRINT STYLES ── */
+@media print {
+  .topbar, .board-sidebar, .bm-header, .dc-actions, .reply-row,
+  .config-banner, .toast, .modal-overlay { display: none !important; }
+  body { background: #fff !important; color: #000 !important; }
+  .board-main { padding: 0 !important; overflow: visible !important; }
+  .board-layout { display: block !important; height: auto !important; }
+  .doubt-card { border: 1px solid #ccc !important; background: #fff !important;
+    page-break-inside: avoid; margin-bottom: 12px; }
+  .dc-vote-num { color: #b07000 !important; }
+  .dc-nick { background: #eee !important; color: #1a3a8a !important; }
+  .dc-answer { background: #f0f8f0 !important; border-left: 2px solid #1e8a4a !important; }
+  #pdf-header { display: block !important; }
+}
+#pdf-header { display: none; font-family: var(--font-head); margin-bottom: 20px; }
+#pdf-header h1 { font-size: 22px; font-weight: 800; }
+#pdf-header p { font-size: 13px; color: #666; margin-top: 4px; }
+
+/* ── INVITE LINK BOX ── */
+.invite-box {
+  background: var(--surface2); border: 1px solid var(--border);
+  border-radius: 8px; padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px; margin-top: 10px;
+}
+.invite-url {
+  flex: 1; font-size: 12px; color: var(--muted);
+  word-break: break-all; font-family: monospace; line-height: 1.5;
+}
+.copy-link-btn {
+  background: var(--accent2); color: #fff; border: none; border-radius: 6px;
+  padding: 6px 12px; font-size: 12px; font-family: var(--font-head);
+  font-weight: 700; cursor: pointer; white-space: nowrap; flex-shrink: 0;
+  transition: opacity 0.15s;
+}
+.copy-link-btn:hover { opacity: 0.85; }
+
 /* responsive */
 @media (max-width: 600px) {
   .board-layout { flex-direction: column; }
@@ -773,6 +839,7 @@ body {
     <div class="topbar-right">
       <div class="topbar-badge">TEACHER</div>
       <div class="topbar-user" id="topbar-teacher-name">—</div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn-home" title="Toggle theme">🌙</button>
       <button class="icon-btn danger" onclick="teacherSignOut()">Sign out</button>
     </div>
   </div>
@@ -795,6 +862,7 @@ body {
     <div class="topbar-logo">✦ <span>Doubt</span>Drop</div>
     <div class="topbar-right">
       <div class="topbar-badge" id="board-class-code-badge">—</div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn-board" title="Toggle theme">🌙</button>
       <button class="icon-btn" onclick="showPage('teacher-home');loadTeacherClassrooms()">← Classrooms</button>
       <button class="icon-btn danger" onclick="teacherSignOut()">Sign out</button>
     </div>
@@ -814,6 +882,8 @@ body {
       </div>
       <div>
         <button class="small-btn outline" style="width:100%;margin-bottom:8px" onclick="markAllAnswered()">✓ Mark all answered</button>
+        <button class="small-btn outline" style="width:100%;margin-bottom:8px" onclick="exportPDF()">📄 Export PDF</button>
+        <button class="small-btn outline" style="width:100%;margin-bottom:8px" onclick="openInviteModal()">🔗 Share invite link</button>
         <button class="small-btn red" style="width:100%" onclick="clearSession()">🗑 Clear session</button>
       </div>
     </div>
@@ -827,6 +897,7 @@ body {
           <button class="ftab" onclick="setFilter('answered',this)">Answered</button>
         </div>
       </div>
+      <div id="pdf-header"><h1 id="pdf-title">Session Report</h1><p id="pdf-meta"></p></div>
       <div id="teacher-doubt-list"></div>
     </div>
   </div>
@@ -841,6 +912,7 @@ body {
     <div class="topbar-right">
       <div class="topbar-badge" id="s-class-badge">—</div>
       <div class="topbar-user" id="s-nick-display">—</div>
+      <button class="theme-toggle" onclick="toggleTheme()" id="theme-btn-student" title="Toggle theme">🌙</button>
       <button class="icon-btn danger" onclick="studentLeave()">Leave</button>
     </div>
   </div>
@@ -917,6 +989,22 @@ body {
   </div>
 </div>
 
+<!-- Invite link modal -->
+<div class="modal-overlay" id="modal-invite">
+  <div class="modal">
+    <div class="modal-title">🔗 Invite Students</div>
+    <p class="modal-sub">Share this link — students click it and the code is pre-filled automatically</p>
+    <div class="invite-box">
+      <span class="invite-url" id="invite-url-text">—</span>
+      <button class="copy-link-btn" onclick="copyInviteLink()">Copy</button>
+    </div>
+    <p style="font-size:11px;color:var(--muted);margin-top:10px;text-align:center">Or share just the code: <strong id="invite-code-text" style="letter-spacing:3px;font-size:14px;color:var(--accent)">—</strong></p>
+    <div class="modal-actions" style="margin-top:16px">
+      <button class="btn btn-primary" onclick="closeModal('modal-invite')" style="margin-top:0">Done</button>
+    </div>
+  </div>
+</div>
+
 <!-- Toast -->
 <div class="toast" id="toast"></div>
 
@@ -957,6 +1045,14 @@ function firebaseConfigIsPlaceholder() {
 function showPage(name) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + name).classList.add('active');
+  if (name === 'student-auth') {
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    if (code) {
+      const inp = document.getElementById('s-code');
+      if (inp) { inp.value = code.toUpperCase(); inp.focus(); }
+    }
+  }
 }
 
 // ═══════════════════════════════════════════════
@@ -1401,6 +1497,59 @@ async function classifyDoubt(text) {
   } catch { return 'doubt'; }
 }
 
+
+// ═══════════════════════════════════════════════
+//  THEME TOGGLE
+// ═══════════════════════════════════════════════
+function toggleTheme() {
+  const isLight = document.body.classList.toggle('light');
+  localStorage.setItem('dd-theme', isLight ? 'light' : 'dark');
+  document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = isLight ? '☀️' : '🌙');
+}
+
+function initTheme() {
+  const saved = localStorage.getItem('dd-theme');
+  if (saved === 'light') {
+    document.body.classList.add('light');
+    document.querySelectorAll('.theme-toggle').forEach(b => b.textContent = '☀️');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  EXPORT PDF
+// ═══════════════════════════════════════════════
+function exportPDF() {
+  if (!_currentClassroom) return;
+  const doubts = Object.values(_teacherDoubts).sort((a,b) => (b.votes||0)-(a.votes||0));
+  const now = new Date().toLocaleString();
+  document.getElementById('pdf-title').textContent = _currentClassroom.name + ' — Session Report';
+  document.getElementById('pdf-meta').textContent =
+    `${_currentClassroom.subject || ''} · ${doubts.length} doubts · Exported ${now}`;
+  window.print();
+}
+
+// ═══════════════════════════════════════════════
+//  INVITE LINK
+// ═══════════════════════════════════════════════
+function openInviteModal() {
+  if (!_currentClassroom) return;
+  const base = window.location.href.split('?')[0];
+  const url = `${base}?code=${_currentClassroom.code}#student`;
+  document.getElementById('invite-url-text').textContent = url;
+  document.getElementById('invite-code-text').textContent = _currentClassroom.code;
+  openModal('modal-invite');
+}
+
+function copyInviteLink() {
+  const url = document.getElementById('invite-url-text').textContent;
+  navigator.clipboard.writeText(url).then(() => {
+    const btn = document.querySelector('.copy-link-btn');
+    btn.textContent = 'Copied!';
+    setTimeout(() => btn.textContent = 'Copy', 2000);
+  });
+  showToast('Invite link copied! 🔗', 'success');
+}
+
 // ═══════════════════════════════════════════════
 //  HELPERS
 // ═══════════════════════════════════════════════
@@ -1473,6 +1622,10 @@ function friendlyError(e) {
 
 // Check config on load
 window.addEventListener('load', () => {
+  initTheme();
+  // auto-navigate to student join if ?code= in URL
+  const params = new URLSearchParams(window.location.search);
+  if (params.get('code')) { showPage('student-auth'); }
   setTimeout(() => {
     if (window._fb && !firebaseConfigIsPlaceholder()) {
       document.getElementById('config-banner').classList.add('hidden');
